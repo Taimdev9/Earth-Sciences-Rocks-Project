@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Taimdev9 | Earth Sciences Project</title>
-    <!-- استدعاء خط Cairo من جوجل -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;700&display=swap" rel="stylesheet">
-    <!-- ربط ملف التصميم -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- 1. شاشة التحميل (Loading Screen) -->
+    <!-- 1. شاشة التحميل (Loader) -->
     <div id="loader">
         <div class="loader-content">
             <h2>Taimdev9</h2>
@@ -20,34 +18,86 @@
         </div>
     </div>
 
-    <!-- 2. الحاوية الرئيسية للموقع -->
-    <main id="main-content">
-        
-        <!-- القسم الأول: الواجهة الرئيسية -->
+    <!-- شريط التنقل الجانبي -->
+    <nav id="sidebar">
+        <ul>
+            <li><a href="#hero" class="active" title="الرئيسية">1</a></li>
+            <li><a href="#concept" title="المفهوم">2</a></li>
+            <li><a href="#systems" title="الأنظمة">3</a></li>
+            <li><a href="#symmetry" title="التناظر">4</a></li>
+            <li><a href="#properties" title="الخصائص">5</a></li>
+            <li><a href="#mohs" title="مقياس موس">6</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- القسم 1: الواجهة -->
         <section id="hero">
-            <!-- هنا سيتم رسم المجسم ثلاثي الأبعاد -->
-            <div id="canvas-container"></div> 
-            
-            <div class="hero-text">
+            <div id="canvas-hero" class="canvas-container"></div>
+            <div class="content">
                 <h1>عالم المعادن</h1>
                 <h3>Earth Sciences Project</h3>
                 <p>إعداد الطالب: <strong>Taimdev9</strong></p>
                 <p>إشراف: المعلمة <strong>مس ضحى</strong></p>
-                <button id="explore-btn">ابدأ الاستكشاف</button>
             </div>
         </section>
 
-        <!-- القسم الثاني: (مؤقت لغاية ما نضيف باقي الأقسام) -->
-        <section id="section2">
-            <h2>مفهوم المعدن</h2>
-            <p>هنا سيتم إضافة باقي الأقسام الـ 6 قريباً...</p>
+        <!-- القسم 2: المفهوم -->
+        <section id="concept" class="section-dark">
+            <div class="content">
+                <h2>مفهوم المعدن</h2>
+                <p>المعدن هو مادة صلبة، طبيعية، غير عضوية، لها تركيب كيميائي محدد وبناء ذري منتظم.</p>
+            </div>
+            <div id="canvas-concept" class="canvas-container"></div>
         </section>
 
+        <!-- القسم 3: الأنظمة البلورية -->
+        <section id="systems">
+            <div class="content">
+                <h2>الأنظمة البلورية</h2>
+                <p>تترتب الذرات في البلورات بأنماط هندسية مختلفة، ومن أهمها النظام المكعب، الرباعي، والسداسي.</p>
+            </div>
+            <div id="canvas-systems" class="canvas-container"></div>
+        </section>
+
+        <!-- القسم 4: التناظر -->
+        <section id="symmetry" class="section-dark">
+            <div class="content">
+                <h2>التناظر البلوري</h2>
+                <p>هو انعكاس للبناء الداخلي المنتظم للبلورة، ويشمل مستويات ومحاور تناظر تقسم البلورة لجزئين متطابقين.</p>
+            </div>
+            <div id="canvas-symmetry" class="canvas-container"></div>
+        </section>
+
+        <!-- القسم 5: الخصائص الفيزيائية -->
+        <section id="properties">
+            <div class="content">
+                <h2>الخصائص الفيزيائية</h2>
+                <p>تتميز المعادن بخصائص مثل: اللون، البريق، الحكاكة، القساوة، والانفصام.</p>
+                <button id="change-prop">تغيير خاصية المعدن</button>
+            </div>
+            <div id="canvas-properties" class="canvas-container"></div>
+        </section>
+
+        <!-- القسم 6: مقياس موس -->
+        <section id="mohs" class="section-dark">
+            <div class="content">
+                <h2>مقياس موس للقساوة</h2>
+                <p>مقياس من 1 إلى 10 لقياس صلابة المعادن. الألماس هو الأقسى (10)، والتلك هو الأنعم (1).</p>
+                <div class="mohs-scale">
+                    <div class="scale-item"><span>1</span> تلك</div>
+                    <div class="scale-item"><span>2.5</span> ظفر الإنسان</div>
+                    <div class="scale-item"><span>3.5</span> عملة نحاسية</div>
+                    <div class="scale-item"><span>5.5</span> الزجاج</div>
+                    <div class="scale-item"><span>10</span> الألماس</div>
+                </div>
+            </div>
+            <div id="canvas-mohs" class="canvas-container"></div>
+        </section>
     </main>
 
-    <!-- استدعاء مكتبة Three.js للـ 3D -->
+    <!-- استدعاء مكتبة Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- ربط ملف الجافاسكريبت -->
     <script src="script.js"></script>
 </body>
 </html>
