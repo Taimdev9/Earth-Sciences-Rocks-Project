@@ -4,17 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Taimdev9 | Earth Sciences Project</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- 1. شاشة التحميل (Loader) -->
+    <!-- مؤشر الماوس المخصص -->
+    <div class="cursor"></div>
+
+    <!-- 1. شاشة التحميل (بسيطة وفخمة) -->
     <div id="loader">
         <div class="loader-content">
             <h2>Taimdev9</h2>
-            <div class="progress-bar"><div class="progress"></div></div>
-            <p>جاري تحميل المختبر...</p>
+            <div class="spinner"></div>
+            <p>جاري التحميل...</p>
         </div>
     </div>
 
@@ -35,18 +38,19 @@
         <section id="hero">
             <div id="canvas-hero" class="canvas-container"></div>
             <div class="content">
-                <h1>عالم المعادن</h1>
-                <h3>Earth Sciences Project</h3>
-                <p>إعداد الطالب: <strong>Taimdev9</strong></p>
-                <p>إشراف: المعلمة <strong>مس ضحى</strong></p>
+                <h1 class="type-head">عالم المعادن</h1>
+                <h3 class="type-sub">Earth Sciences Project</h3>
+                <p class="type-para">إعداد الطالب: <strong>Taimdev9</strong></p>
+                <p class="type-para">إشراف: المعلمة <strong>مس ضحى</strong></p>
+                <p class="hint">(استخدم الماوس للسحب والتحكم بالمجسم)</p>
             </div>
         </section>
 
         <!-- القسم 2: المفهوم -->
         <section id="concept" class="section-dark">
             <div class="content">
-                <h2>مفهوم المعدن</h2>
-                <p>المعدن هو مادة صلبة، طبيعية، غير عضوية، لها تركيب كيميائي محدد وبناء ذري منتظم.</p>
+                <h2 class="type-head">مفهوم المعدن</h2>
+                <p class="type-para">المعدن هو مادة صلبة، طبيعية، غير عضوية، لها تركيب كيميائي محدد وبناء ذري منتظم.</p>
             </div>
             <div id="canvas-concept" class="canvas-container"></div>
         </section>
@@ -54,8 +58,8 @@
         <!-- القسم 3: الأنظمة البلورية -->
         <section id="systems">
             <div class="content">
-                <h2>الأنظمة البلورية</h2>
-                <p>تترتب الذرات في البلورات بأنماط هندسية مختلفة، ومن أهمها النظام المكعب، الرباعي، والسداسي.</p>
+                <h2 class="type-head">الأنظمة البلورية</h2>
+                <p class="type-para">تترتب الذرات في البلورات بأنماط هندسية مختلفة، ومن أهمها النظام المكعب، الرباعي، والسداسي.</p>
             </div>
             <div id="canvas-systems" class="canvas-container"></div>
         </section>
@@ -63,8 +67,8 @@
         <!-- القسم 4: التناظر -->
         <section id="symmetry" class="section-dark">
             <div class="content">
-                <h2>التناظر البلوري</h2>
-                <p>هو انعكاس للبناء الداخلي المنتظم للبلورة، ويشمل مستويات ومحاور تناظر تقسم البلورة لجزئين متطابقين.</p>
+                <h2 class="type-head">التناظر البلوري</h2>
+                <p class="type-para">هو انعكاس للبناء الداخلي المنتظم للبلورة، ويشمل مستويات ومحاور تناظر تقسم البلورة لجزئين متطابقين.</p>
             </div>
             <div id="canvas-symmetry" class="canvas-container"></div>
         </section>
@@ -72,8 +76,8 @@
         <!-- القسم 5: الخصائص الفيزيائية -->
         <section id="properties">
             <div class="content">
-                <h2>الخصائص الفيزيائية</h2>
-                <p>تتميز المعادن بخصائص مثل: اللون، البريق، الحكاكة، القساوة، والانفصام.</p>
+                <h2 class="type-head">الخصائص الفيزيائية</h2>
+                <p class="type-para">تتميز المعادن بخصائص مثل: اللون، البريق، الحكاكة، القساوة، والانفصام.</p>
                 <button id="change-prop">تغيير خاصية المعدن</button>
             </div>
             <div id="canvas-properties" class="canvas-container"></div>
@@ -82,22 +86,23 @@
         <!-- القسم 6: مقياس موس -->
         <section id="mohs" class="section-dark">
             <div class="content">
-                <h2>مقياس موس للقساوة</h2>
-                <p>مقياس من 1 إلى 10 لقياس صلابة المعادن. الألماس هو الأقسى (10)، والتلك هو الأنعم (1).</p>
+                <h2 class="type-head">مقياس موس للقساوة</h2>
+                <p class="type-para">مقياس من 1 إلى 10 لقياس صلابة المعادن. الألماس هو الأقسى (10)، والتلك هو الأنعم (1).</p>
                 <div class="mohs-scale">
                     <div class="scale-item"><span>1</span> تلك</div>
-                    <div class="scale-item"><span>2.5</span> ظفر الإنسان</div>
-                    <div class="scale-item"><span>3.5</span> عملة نحاسية</div>
-                    <div class="scale-item"><span>5.5</span> الزجاج</div>
-                    <div class="scale-item"><span>10</span> الألماس</div>
+                    <div class="scale-item"><span>2.5</span> ظفر</div>
+                    <div class="scale-item"><span>3.5</span> نحاس</div>
+                    <div class="scale-item"><span>5.5</span> زجاج</div>
+                    <div class="scale-item"><span>10</span> ألماس</div>
                 </div>
             </div>
             <div id="canvas-mohs" class="canvas-container"></div>
         </section>
     </main>
 
-    <!-- استدعاء مكتبة Three.js -->
+    <!-- استدعاء المكتبات -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
