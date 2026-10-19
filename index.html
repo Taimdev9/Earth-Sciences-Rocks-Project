@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taimdev9 | Earth Sciences Project</title>
+    <!-- استدعاء خط Cairo من جوجل -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;700&display=swap" rel="stylesheet">
+    <!-- ربط ملف التصميم -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 1. شاشة التحميل (Loading Screen) -->
+    <div id="loader">
+        <div class="loader-content">
+            <h2>Taimdev9</h2>
+            <div class="progress-bar"><div class="progress"></div></div>
+            <p>جاري تحميل المختبر...</p>
+        </div>
+    </div>
+
+    <!-- 2. الحاوية الرئيسية للموقع -->
+    <main id="main-content">
+        
+        <!-- القسم الأول: الواجهة الرئيسية -->
+        <section id="hero">
+            <!-- هنا سيتم رسم المجسم ثلاثي الأبعاد -->
+            <div id="canvas-container"></div> 
+            
+            <div class="hero-text">
+                <h1>عالم المعادن</h1>
+                <h3>Earth Sciences Project</h3>
+                <p>إعداد الطالب: <strong>Taimdev9</strong></p>
+                <p>إشراف: المعلمة <strong>مس ضحى</strong></p>
+                <button id="explore-btn">ابدأ الاستكشاف</button>
+            </div>
+        </section>
+
+        <!-- القسم الثاني: (مؤقت لغاية ما نضيف باقي الأقسام) -->
+        <section id="section2">
+            <h2>مفهوم المعدن</h2>
+            <p>هنا سيتم إضافة باقي الأقسام الـ 6 قريباً...</p>
+        </section>
+
+    </main>
+
+    <!-- استدعاء مكتبة Three.js للـ 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- ربط ملف الجافاسكريبت -->
+    <script src="script.js"></script>
+</body>
+</html>
