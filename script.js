@@ -6,55 +6,86 @@ const progressBar = document.querySelector('.progress');
 const loader = document.getElementById('loader');
 
 const loadingInterval = setInterval(() => {
-    progress += Math.random() * 10;
+    progress += Math.random() * 15;
     if (progress >= 100) {
         progress = 100;
         clearInterval(loadingInterval);
         setTimeout(() => {
             loader.style.opacity = '0';
             setTimeout(() => { loader.style.display = 'none'; }, 500);
-        }, 500);
+        }, 400);
     }
     progressBar.style.width = `${progress}%`;
 }, 100);
 
 // ==========================================
-// 2. إعدادات Three.js الأساسية
+// 2. إعدادات Three.js (المجسمات 3D)
 // ==========================================
 window.addEventListener('load', () => {
     
-    // دالة لإنشاء مشهد 3D جديد (لتجنب تكرار الكود)
     function createScene(containerId, buildModelCallback) {
         const container = document.getElementById(containerId);
         const scene = new THREE.Scene();
+        
+        // ضباب خفيف للخلفية يندمج مع اللون الأسود
+        scene.fog = new THREE.FogExp2(0x0f0f0f, 0.04);
+
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 5;
+        camera.position.z = 6;
+        
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio); 
         container.appendChild(renderer.domElement);
 
-        // إضاءة عامة
-        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-        const pointLight = new THREE.PointLight(0x00E5FF, 2, 50);
-        pointLight.position.set(5, 5, 5);
-        scene.add(pointLight);
+        // --- إضاءة بيضاء ورمادية (بدون ألوان فسفورية) ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
 
-        // بناء المجسم الخاص بهذا القسم
+        const light1 = new THREE.PointLight(0xffffff, 1.5, 30); // إضاءة بيضاء قوية
+        light1.position.set(5, 5, 5);
+        scene.add(light1);
+
+        const light2 = new THREE.PointLight(0x888888, 1, 30); // إضاءة رمادية خفيفة
+        light2.position.set(-5, -5, 5);
+        scene.add(light2);
+
+        // --- جزيئات خلفية (غبار فضائي رمادي) ---
+        const starGeo = new THREE.BufferGeometry();
+        const starCount = 800;
+        const starPositions = new Float32Array(starCount * 3);
+        for(let i=0; i < starCount * 3; i++) {
+            starPositions[i] = (Math.random() - 0.5) * 50;
+        }
+        starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+        const starMat = new THREE.PointsMaterial({ color: 0x666666, size: 0.08, transparent: true, opacity: 0.6 });
+        const stars = new THREE.Points(starGeo, starMat);
+        scene.add(stars);
+
+        // --- بناء المجسم ---
         const model = buildModelCallback();
         scene.add(model);
 
-        // حركة الماوس
+        // --- حركة الماوس ---
         let mouseX = 0; let mouseY = 0;
         document.addEventListener('mousemove', (e) => {
             mouseX = (e.clientX / window.innerWidth) * 2 - 1;
             mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
         });
 
-        // حلقة الرسم
         function animate() {
             requestAnimationFrame(animate);
-            model.rotation.x += 0.002 + (mouseY * 0.01);
-            model.rotation.y += 0.005 + (mouseX * 0.01);
+            
+            stars.rotation.y += 0.0003;
+
+            if (model) {
+                // حركة دوران خفيفة مع الماوس
+                model.rotation.x += 0.002 + (mouseY * 0.01);
+                model.rotation.y += 0.003 + (mouseX * 0.01);
+                // حركة طفو (Floating)
+                model.position.y = Math.sin(Date.now() * 0.001) * 0.3;
+            }
+
             renderer.render(scene, camera);
         }
         animate();
@@ -66,123 +97,160 @@ window.addEventListener('load', () => {
         });
     }
 
-    // --- 1. القسم الأول: بلورة (Icosahedron) ---
+    // ==========================================
+    // تصميم المجسمات (ألوان هادئة وفخمة)
+    // ==========================================
+
+    // 1. بلورة الكوارتز (فضي/شفاف)
     createScene('canvas-hero', () => {
-        const geo = new THREE.IcosahedronGeometry(2.5, 0);
-        const mat = new THREE.MeshStandardMaterial({ color: 0x00E5FF, wireframe: true, transparent: true, opacity: 0.6 });
-        return new THREE.Mesh(geo, mat);
+        const geometry = new THREE.IcosahedronGeometry(2.2, 0);
+        const material = new THREE.MeshPhysicalMaterial({ 
+            color: 0xcccccc, // رمادي فضي
+            metalness: 0.9, 
+            roughness: 0.1, 
+            transparent: true, 
+            opacity: 0.9,
+            clearcoat: 1.0 // لمعان زجاجي
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+        
+        // حواف بيضاء
+        const edges = new THREE.EdgesGeometry(geometry);
+        const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 1 } ));
+        mesh.add(line);
+        return mesh;
     });
 
-    // --- 2. القسم الثاني: الشبكة الذرية (Concept) ---
+    // 2. الشبكة الذرية (رمادي معدني)
     createScene('canvas-concept', () => {
         const group = new THREE.Group();
-        const sphereGeo = new THREE.SphereGeometry(0.2, 16, 16);
-        const sphereMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        const sphereGeo = new THREE.SphereGeometry(0.25, 32, 32);
+        const sphereMat = new THREE.MeshStandardMaterial({ color: 0x999999, metalness: 0.8, roughness: 0.3 });
         
-        // بناء مكعب من الكرات لتمثيل الذرات
         for(let x=-1; x<=1; x+=2) {
             for(let y=-1; y<=1; y+=2) {
                 for(let z=-1; z<=1; z+=2) {
                     const sphere = new THREE.Mesh(sphereGeo, sphereMat);
-                    sphere.position.set(x, y, z);
+                    sphere.position.set(x * 1.5, y * 1.5, z * 1.5);
                     group.add(sphere);
                 }
             }
         }
-        // إضافة أسلاك تربط الذرات
-        const wireframeMat = new THREE.MeshBasicMaterial({ color: 0x00E5FF, wireframe: true, transparent: true, opacity: 0.3 });
-        const boxGeo = new THREE.BoxGeometry(2, 2, 2);
+        
+        const boxGeo = new THREE.BoxGeometry(3, 3, 3);
+        const wireframeMat = new THREE.MeshBasicMaterial({ color: 0x555555, wireframe: true, transparent: true, opacity: 0.4 });
         group.add(new THREE.Mesh(boxGeo, wireframeMat));
         return group;
     });
 
-    // --- 3. القسم الثالث: الأنظمة البلورية (Systems) ---
+    // 3. الأنظمة البلورية (لون معدني داكن)
     createScene('canvas-systems', () => {
         const group = new THREE.Group();
-        const mat = new THREE.MeshStandardMaterial({ color: 0x00E5FF, wireframe: true });
+        const mat = new THREE.MeshStandardMaterial({ color: 0x7a8a99, metalness: 0.7, roughness: 0.4 }); // رمادي مزرق هادئ
         
-        // المكعب
         const cube = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), mat);
-        cube.position.x = -2.5;
+        cube.position.x = -3;
         group.add(cube);
 
-        // الرباعي (متوازي مستطيلات)
         const tetragonal = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.5, 1.5), mat);
         tetragonal.position.x = 0;
         group.add(tetragonal);
 
-        // السداسي
-        const hexGeo = new THREE.CylinderGeometry(1, 1, 2, 6);
+        const hexGeo = new THREE.CylinderGeometry(1, 1, 2.5, 6);
         const hex = new THREE.Mesh(hexGeo, mat);
-        hex.position.x = 2.5;
+        hex.position.x = 3;
         group.add(hex);
 
+        group.rotation.x = 0.2;
         return group;
     });
 
-    // --- 4. القسم الرابع: التناظر (Symmetry) ---
+    // 4. التناظر (زجاج شفاف مع مستوى بنفسجي داكن)
     createScene('canvas-symmetry', () => {
         const group = new THREE.Group();
-        // مكعب شفاف
-        const cubeGeo = new THREE.BoxGeometry(2.5, 2.5, 2.5);
-        const cubeMat = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.1 });
+        
+        const cubeGeo = new THREE.BoxGeometry(3, 3, 3);
+        const cubeMat = new THREE.MeshPhysicalMaterial({ 
+            color: 0xffffff, transparent: true, opacity: 0.1, 
+            roughness: 0, metalness: 0.1, transmission: 0.9 // تأثير الزجاج
+        });
         group.add(new THREE.Mesh(cubeGeo, cubeMat));
         
-        // خطوط التناظر (محاور)
-        const linesMat = new THREE.LineBasicMaterial({ color: 0x00E5FF });
+        // خطوط بيضاء
+        const linesMat = new THREE.LineBasicMaterial({ color: 0xffffff });
         const points = [
-            new THREE.Vector3(-2, 0, 0), new THREE.Vector3(2, 0, 0),
-            new THREE.Vector3(0, -2, 0), new THREE.Vector3(0, 2, 0),
-            new THREE.Vector3(0, 0, -2), new THREE.Vector3(0, 0, 2)
+            new THREE.Vector3(-2.5, 0, 0), new THREE.Vector3(2.5, 0, 0),
+            new THREE.Vector3(0, -2.5, 0), new THREE.Vector3(0, 2.5, 0),
+            new THREE.Vector3(0, 0, -2.5), new THREE.Vector3(0, 0, 2.5)
         ];
         const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
-        const lines = new THREE.LineSegments(lineGeo, linesMat);
-        group.add(lines);
+        group.add(new THREE.LineSegments(lineGeo, linesMat));
 
-        // مستوى التناظر
-        const planeGeo = new THREE.PlaneGeometry(2.5, 2.5);
-        const planeMat = new THREE.MeshBasicMaterial({ color: 0xff00ff, side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
+        // مستوى التناظر (بنفسجي داكن هادئ)
+        const planeGeo = new THREE.PlaneGeometry(3, 3);
+        const planeMat = new THREE.MeshBasicMaterial({ color: 0x4a3b5c, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
         const plane = new THREE.Mesh(planeGeo, planeMat);
-        plane.rotation.x = Math.PI / 4; // إمالة المستوى
+        plane.rotation.y = Math.PI / 4; 
         group.add(plane);
 
         return group;
     });
 
-    // --- 5. القسم الخامس: الخصائص (Properties) ---
-    let propModel;
+    // 5. الخصائص الفيزيائية (صخرة بألوان واقعية)
+    let propModel; 
+    let propMaterial; 
     createScene('canvas-properties', () => {
-        // شكل صخرة (Dodecahedron)
-        const geo = new THREE.DodecahedronGeometry(2, 0);
-        const mat = new THREE.MeshStandardMaterial({ color: 0x888888, flatShading: true, roughness: 0.8 });
-        propModel = new THREE.Mesh(geo, mat);
+        const geo = new THREE.DodecahedronGeometry(2.2, 0); 
+        // لون رمادي حجري واقعي
+        propMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, flatShading: true, roughness: 0.9, metalness: 0.1 });
+        propModel = new THREE.Mesh(geo, propMaterial);
         return propModel;
     });
 
-    // تفاعل زر تغيير الخصائص
     const propBtn = document.getElementById('change-prop');
+    // ألوان المعدن (ذهبي مطفي، نحاسي، أزرق داكن، أحمر داكن)
+    const colors = [0x666666, 0xb08d57, 0x4a607a, 0x7a4a4a, 0x4a7a5a];
+    const names = ["حجر عادي", "بريق فلزي (ذهب)", "لون أزرق", "لون أحمر", "لون أخضر"];
     let colorIndex = 0;
-    const colors = [0x888888, 0xffd700, 0x00E5FF, 0xff0033]; // رمادي، ذهبي، سماوي، أحمر
+
     propBtn.addEventListener('click', () => {
         colorIndex = (colorIndex + 1) % colors.length;
-        if(propModel) {
-            propModel.material.color.setHex(colors[colorIndex]);
-            propModel.material.metalness = colorIndex === 1 ? 0.9 : 0.1; // الذهبي لامع
+        if(propMaterial && propModel) {
+            propMaterial.color.setHex(colors[colorIndex]);
+            
+            if(colorIndex === 1) { propMaterial.metalness = 1; propMaterial.roughness = 0.2; } // لامع
+            else { propMaterial.metalness = 0.1; propMaterial.roughness = 0.8; } // مطفي
+            
+            propModel.scale.set(1.1, 1.1, 1.1);
+            setTimeout(() => propModel.scale.set(1,1,1), 200);
         }
     });
 
-    // --- 6. القسم السادس: مقياس موس (Mohs) ---
+    // 6. مقياس موس (ألماس شفاف)
     createScene('canvas-mohs', () => {
-        // هرم/بلورة تمثل الألماس
-        const geo = new THREE.OctahedronGeometry(2, 0);
-        const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.8, metalness: 0.5, roughness: 0.1 });
+        const geo = new THREE.OctahedronGeometry(2.2, 0);
+        const mat = new THREE.MeshPhysicalMaterial({ 
+            color: 0xffffff, 
+            metalness: 1.0, 
+            roughness: 0.05, 
+            transparent: true, 
+            opacity: 0.9,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.1
+        });
         const diamond = new THREE.Mesh(geo, mat);
+        
+        // خطوط بيضاء لتوضيح شكل الألماس
+        const edges = new THREE.EdgesGeometry(geo);
+        const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial( { color: 0xffffff } ));
+        diamond.add(line);
+        
         return diamond;
     });
 });
 
 // ==========================================
-// 3. تفعيل التمرير السلس والـ Sidebar
+// 3. برمجة التنقل
 // ==========================================
 const navLinks = document.querySelectorAll('#sidebar a');
 navLinks.forEach(link => {
@@ -191,7 +259,6 @@ navLinks.forEach(link => {
         const targetId = link.getAttribute('href');
         document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
         
-        // تغيير اللون النشط
         navLinks.forEach(l => l.classList.remove('active'));
         link.classList.add('active');
     });
