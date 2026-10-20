@@ -1,26 +1,66 @@
 // ==========================================
-// 1. إعدادات شاشة التحميل
+// 1. المؤثرات الصوتية (UI Sounds)
+// ==========================================
+let audioCtx;
+function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+function playSound(type) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+    } else if (type === 'hover') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+    }
+}
+// تفعيل الصوت مع أول تفاعل للمستخدم
+document.addEventListener('click', initAudio, { once: true });
+document.addEventListener('mousemove', initAudio, { once: true });
+
+// ==========================================
+// 2. وضع العرض (Fullscreen)
+// ==========================================
+document.getElementById('fs-btn').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.log(err));
+    } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+    }
+});
+
+// ==========================================
+// 3. إعدادات شاشة التحميل
 // ==========================================
 window.addEventListener('load', () => {
-    // إخفاء شاشة التحميل بعد 2 ثانية (عشان تاخذ وقتها بالظهور)
     setTimeout(() => {
         const loader = document.getElementById('loader');
         loader.style.opacity = '0';
         setTimeout(() => {
             loader.style.display = 'none';
-            
-            // بمجرد اختفاء شاشة التحميل، نبدأ تأثير الكتابة في القسم الأول (Hero)
             const heroElements = document.querySelectorAll('#hero .type-head, #hero .type-sub, #hero .type-para');
             heroElements.forEach((el, index) => {
-                setTimeout(() => triggerTyping(el), index * 500); // تأخير بسيط بين كل سطر
+                setTimeout(() => triggerTyping(el), index * 300);
             });
-
-        }, 800); // وقت التلاشي
-    }, 2000); 
+        }, 800); 
+    }, 1500); 
 });
 
 // ==========================================
-// 2. المؤشر المخصص (Custom Cursor)
+// 4. المؤشر المخصص والأصوات
 // ==========================================
 const cursor = document.querySelector('.cursor');
 document.addEventListener('mousemove', (e) => {
@@ -28,79 +68,59 @@ document.addEventListener('mousemove', (e) => {
     cursor.style.top = e.clientY + 'px';
 });
 document.querySelectorAll('a, button, .scale-item').forEach(el => {
-    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    el.addEventListener('mouseenter', () => { cursor.classList.add('hover'); playSound('hover'); });
     el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+    el.addEventListener('click', () => playSound('click'));
 });
 
 // ==========================================
-// 3. نظام الكتابة "الكيبورد" عند النزول بالسكرول
+// 5. نظام الكتابة عند السكرول
 // ==========================================
-function typeWriter(element, text, speed, callback) {
+function typeWriter(element, text, speed) {
     let i = 0;
-    // إضافة مؤشر يرمش في بداية الكتابة
     element.innerHTML = '<span class="cursor-blink"></span>';
-    
     const timer = setInterval(() => {
-        // إضافة الحرف الحالي + المؤشر اللي يرمش
         element.innerHTML = text.substring(0, i) + '<span class="cursor-blink"></span>';
         i++;
-        
-        // إذا خلص النص
         if (i > text.length) {
             clearInterval(timer);
-            element.innerHTML = text; // إزالة المؤشر في النهاية
-            if(callback) callback();
+            element.innerHTML = text;
         }
     }, speed);
 }
 
 function triggerTyping(element) {
-    // إذا كان النص مكتوب مسبقاً، لا تعيده
     if (element.classList.contains('typed-done')) return;
     element.classList.add('typed-done');
-    
-    // حفظ النص الأصلي عشان نكتبه
     const originalText = element.getAttribute('data-text') || element.innerText;
-    if (!element.getAttribute('data-text')) {
-        element.setAttribute('data-text', originalText); 
-    }
-    
-    element.innerText = ''; // تفريغ النص للبدء بالكتابة
-    
-    // تحديد السرعة (العناوين أسرع شوي من الفقرات)
+    if (!element.getAttribute('data-text')) element.setAttribute('data-text', originalText); 
+    element.innerText = ''; 
     let speed = 40;
-    if (element.classList.contains('type-para')) speed = 25;
-    if (element.classList.contains('type-head')) speed = 60;
-    
+    if (element.classList.contains('type-para')) speed = 20;
+    if (element.classList.contains('type-head')) speed = 50;
     typeWriter(element, originalText, speed);
 }
 
-// مراقبة الشاشة (عشان تشغل الكتابة لما تنزل للقسم)
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
-            // لما القسم يبان في الشاشة، ابحث عن النصوص اللي جواه وشغل الكتابة
             const elementsToType = entry.target.querySelectorAll('.type-head, .type-sub, .type-para');
-            
             elementsToType.forEach((el, index) => {
-                // تأخير بسيط بين كل سطر عشان يطلع احترافي
-                setTimeout(() => {
-                    triggerTyping(el);
-                }, index * 300); 
+                setTimeout(() => triggerTyping(el), index * 200); 
             });
         }
     });
-}, { threshold: 0.3 }); // يشتغل لما 30% من القسم يبان
-
-// تطبيق المراقبة على كل الأقسام
+}, { threshold: 0.2 });
 document.querySelectorAll('section').forEach(section => observer.observe(section));
 
 
 // ==========================================
-// 4. إعدادات Three.js (المجسمات 3D)
+// 6. إعدادات Three.js (المجسمات)
 // ==========================================
 window.addEventListener('load', () => {
-    function createScene(containerId, buildModelCallback) {
+    
+    // --- دالة إنشاء المشهد ---
+    function createScene(containerId, buildModelCallback, isInteractive = false) {
         const container = document.getElementById(containerId);
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x050505, 0.04);
@@ -113,14 +133,11 @@ window.addEventListener('load', () => {
         renderer.setPixelRatio(window.devicePixelRatio); 
         container.appendChild(renderer.domElement);
 
-        // التحكم بالمجسم (سحب ولف)
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
         controls.enableZoom = false;
         controls.enablePan = false;
 
-        // إضاءة
         scene.add(new THREE.AmbientLight(0xffffff, 0.3));
         const light1 = new THREE.PointLight(0xffffff, 1.5, 30); light1.position.set(5, 5, 5); scene.add(light1);
         const light2 = new THREE.PointLight(0x888888, 1, 30); light2.position.set(-5, -5, 5); scene.add(light2);
@@ -128,9 +145,8 @@ window.addEventListener('load', () => {
 
         // جزيئات خلفية
         const starGeo = new THREE.BufferGeometry();
-        const starCount = 800;
-        const starPositions = new Float32Array(starCount * 3);
-        for(let i=0; i < starCount * 3; i++) { starPositions[i] = (Math.random() - 0.5) * 50; }
+        const starPositions = new Float32Array(800 * 3);
+        for(let i=0; i < 800 * 3; i++) { starPositions[i] = (Math.random() - 0.5) * 50; }
         starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
         const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0x444444, size: 0.08, transparent: true, opacity: 0.6 }));
         scene.add(stars);
@@ -141,7 +157,7 @@ window.addEventListener('load', () => {
         function animate() {
             requestAnimationFrame(animate);
             stars.rotation.y += 0.0005;
-            if (model) model.position.y = Math.sin(Date.now() * 0.001) * 0.2;
+            if (model && !isInteractive) model.position.y = Math.sin(Date.now() * 0.001) * 0.2; // طفو للمجسمات العادية
             controls.update();
             renderer.render(scene, camera);
         }
@@ -152,11 +168,11 @@ window.addEventListener('load', () => {
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        return { scene, camera, renderer, controls, model };
     }
 
-    // --- تصميم المجسمات (ألوان هادئة وفخمة) ---
-
-    // 1. بلورة الكوارتز
+    // --- 1. بلورة الكوارتز ---
     createScene('canvas-hero', () => {
         const geo = new THREE.IcosahedronGeometry(2.2, 0);
         const mat = new THREE.MeshPhysicalMaterial({ color: 0xcccccc, metalness: 0.9, roughness: 0.1, transparent: true, opacity: 0.9, clearcoat: 1.0 });
@@ -165,7 +181,7 @@ window.addEventListener('load', () => {
         return mesh;
     });
 
-    // 2. الشبكة الذرية
+    // --- 2. الشبكة الذرية ---
     createScene('canvas-concept', () => {
         const group = new THREE.Group();
         const sphereGeo = new THREE.SphereGeometry(0.25, 32, 32);
@@ -177,7 +193,7 @@ window.addEventListener('load', () => {
         return group;
     });
 
-    // 3. الأنظمة البلورية
+    // --- 3. الأنظمة البلورية ---
     createScene('canvas-systems', () => {
         const group = new THREE.Group();
         const mat = new THREE.MeshStandardMaterial({ color: 0x7a8a99, metalness: 0.7, roughness: 0.4 }); 
@@ -187,7 +203,7 @@ window.addEventListener('load', () => {
         return group;
     });
 
-    // 4. التناظر
+    // --- 4. التناظر ---
     createScene('canvas-symmetry', () => {
         const group = new THREE.Group();
         group.add(new THREE.Mesh(new THREE.BoxGeometry(3, 3, 3), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.1, roughness: 0, metalness: 0.1, transmission: 0.9 })));
@@ -198,7 +214,7 @@ window.addEventListener('load', () => {
         return group;
     });
 
-    // 5. الخصائص
+    // --- 5. الخصائص ---
     let propModel, propMaterial; 
     createScene('canvas-properties', () => {
         propMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, flatShading: true, roughness: 0.9, metalness: 0.1 });
@@ -216,24 +232,149 @@ window.addEventListener('load', () => {
         propModel.scale.set(1.1, 1.1, 1.1); setTimeout(() => propModel.scale.set(1,1,1), 200);
     });
 
-    // 6. مقياس موس (ألماس)
-    createScene('canvas-mohs', () => {
-        const geo = new THREE.OctahedronGeometry(2.2, 0);
-        const mat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 1.0, roughness: 0.05, transparent: true, opacity: 0.9, clearcoat: 1.0 });
-        const diamond = new THREE.Mesh(geo, mat);
-        diamond.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0xffffff })));
-        return diamond;
-    });
-});
+    // ==========================================
+    // 7. مقياس موس التفاعلي 3D
+    // ==========================================
+    const mohsModels = []; // لحفظ الأشكال المختلفة
+    let mohsGroup = new THREE.Group();
+    
+    const mohsSceneObj = createScene('canvas-mohs', () => {
+        return mohsGroup;
+    }, true);
 
-// ==========================================
-// 5. شريط التنقل
-// ==========================================
-document.querySelectorAll('#sidebar a').forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        document.querySelector(link.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
-        document.querySelectorAll('#sidebar a').forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
+    // دالة تغيير الشكل بناءً على الزر
+    function changeMohsModel(index) {
+        // مسح المجسم القديم
+        while(mohsGroup.children.length > 0) { mohsGroup.remove(mohsGroup.children[0]); }
+        
+        let newMesh;
+        const mat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0.8, roughness: 0.2, transparent: true, opacity: 0.9 });
+
+        // بناء الشكل حسب الدرجة
+        switch(index) {
+            case 0: // تلك (ناعم جداً)
+                newMesh = new THREE.Mesh(new THREE.SphereGeometry(2, 32, 32), new THREE.MeshStandardMaterial({color: 0x555555, roughness: 1}));
+                break;
+            case 1: // ظفر
+                newMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 0.5, 32), new THREE.MeshStandardMaterial({color: 0x999999, roughness: 0.5}));
+                newMesh.rotation.x = Math.PI / 2;
+                break;
+            case 2: // نحاس (عملة)
+                newMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, 0.2, 32), new THREE.MeshStandardMaterial({color: 0xb08d57, metalness: 0.9, roughness: 0.3}));
+                newMesh.rotation.x = Math.PI / 2;
+                break;
+            case 3: // زجاج
+                newMesh = new THREE.Mesh(new THREE.BoxGeometry(2, 2.5, 0.1), new THREE.MeshPhysicalMaterial({color: 0xffffff, transparent: true, opacity: 0.3, transmission: 0.9}));
+                break;
+            case 4: // ألماس
+                newMesh = new THREE.Mesh(new THREE.OctahedronGeometry(2.2, 0), new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 1.0, roughness: 0.05, transparent: true, opacity: 0.9, clearcoat: 1.0 }));
+                newMesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(newMesh.geometry), new THREE.LineBasicMaterial({ color: 0xffffff })));
+                break;
+        }
+        
+        mohsGroup.add(newMesh);
+        // إعطاء المجسم حركة دوران مستمرة
+        newMesh.rotation.y = 0.5;
+    }
+
+    // تفعيل الأزرار
+    const mohsButtons = document.querySelectorAll('.scale-item');
+    mohsButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            mohsButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            changeMohsModel(parseInt(btn.getAttribute('data-index')));
+        });
+    });
+    // تشغيل الأولى تلقائياً
+    changeMohsModel(4); // الألماس
+    
+    // إضافة دوران للمجسم في قسم مقياس موس
+    function animateMohs() {
+        requestAnimationFrame(animateMohs);
+        if (mohsGroup.children.length > 0) {
+            mohsGroup.children[0].rotation.y += 0.01;
+            mohsGroup.children[0].rotation.x += 0.005;
+        }
+    }
+    animateMohs();
+
+
+    // ==========================================
+    // 8. الاختبار التفاعلي 3D (Quiz)
+    // ==========================================
+    const quizQuestions = [
+        { q: "أي المعادن التالية يخدش الزجاج؟", options: ["التلك", "الألماس", "الذهب"], correct: 1 },
+        { q: "ما هو المعدن الذي له بناء ذري مكعب؟", options: ["الكوارتز", "الهاليت", "الزركون"], correct: 1 }
+    ];
+    let currentQuizIndex = 0;
+
+    const quizSceneObj = createScene('canvas-quiz', () => {
+        const group = new THREE.Group();
+        const cubeGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+        
+        // إنشاء 3 مكعبات
+        for(let i=0; i<3; i++) {
+            const mat = new THREE.MeshPhysicalMaterial({ color: 0x333333, metalness: 0.5, roughness: 0.5 });
+            const cube = new THREE.Mesh(cubeGeo, mat);
+            cube.position.x = (i - 1) * 2.5; // توزيعهم بجانب بعض
+            cube.userData = { index: i }; // لحفظ رقم المكعب
+            group.add(cube);
+        }
+        return group;
+    }, true);
+
+    // إعداد Raycaster للتفاعل مع المكعبات
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    function loadQuiz() {
+        if(currentQuizIndex >= quizQuestions.length) {
+            document.getElementById('quiz-question').innerText = "أحسنت! لقد أكملت التحدي بنجاح.";
+            quizSceneObj.model.children.forEach(c => c.material.color.setHex(0x222222));
+            return;
+        }
+        
+        const q = quizQuestions[currentQuizIndex];
+        document.getElementById('quiz-question').innerText = q.q;
+        
+        // إعادة تعيين ألوان المكعبات
+        quizSceneObj.model.children.forEach((cube, i) => {
+            cube.material.color.setHex(0x333333);
+            cube.position.y = 0;
+            // كتابة الخيارات على المكعبات (سنستخدم خاصية الـ User Data لحفظ الخيار)
+            cube.userData.text = q.options[i];
+        });
+    }
+    loadQuiz();
+
+    // حدث الضغط بالماوس للتفاعل مع المكعبات
+    document.getElementById('canvas-quiz').addEventListener('click', (e) => {
+        // حساب موقع الماوس
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, quizSceneObj.camera);
+        const intersects = raycaster.intersectObjects(quizSceneObj.model.children);
+
+        if (intersects.length > 0) {
+            const clickedCube = intersects[0].object;
+            const selectedIndex = clickedCube.userData.index;
+            
+            if (selectedIndex === quizQuestions[currentQuizIndex].correct) {
+                // إجابة صحيحة
+                clickedCube.material.color.setHex(0xffffff); // يضيء أبيض
+                playSound('click');
+                setTimeout(() => {
+                    currentQuizIndex++;
+                    loadQuiz();
+                }, 1000);
+            } else {
+                // إجابة خاطئة
+                clickedCube.material.color.setHex(0x111111); // يغمق
+                clickedCube.position.y = -1; // يهبط
+                playSound('hover'); // صوت خطأ
+            }
+        }
     });
 });
