@@ -9,10 +9,19 @@
 </head>
 <body>
 
+    <!-- شريط التقدم (الميزة 5) -->
+    <div id="progress-bar"></div>
+
     <!-- مؤشر الماوس المخصص -->
     <div class="cursor"></div>
 
-    <!-- 1. شاشة التحميل البسيطة -->
+    <!-- أزرار التحكم العلوية -->
+    <div class="top-controls">
+        <button id="cinematic-btn" title="وضع العرض السينمائي">🎬 عرض سينمائي</button>
+        <button id="fact-btn" title="هل تعلم؟">💡 هل تعلم؟</button>
+    </div>
+
+    <!-- شاشة التحميل -->
     <div id="loader">
         <div class="loader-content">
             <h2>Taimdev9</h2>
@@ -56,14 +65,15 @@
             <div id="canvas-concept" class="canvas-container"></div>
         </section>
 
-        <!-- القسم 3: الأنظمة البلورية -->
+        <!-- القسم 3: الأنظمة البلورية (الميزة 4 و 6) -->
         <section id="systems">
             <div class="content">
                 <h2 class="type-head">الأنظمة البلورية</h2>
-                <p class="type-para">تترتب الذرات في البلورات بأنماط هندسية مختلفة، ومن أهمها:</p>
-                <p class="type-para"><strong>المكعب:</strong> محاور متساوية ومتعامدة (ملح الهاليت والألماس).</p>
-                <p class="type-para"><strong>الرباعي:</strong> محوران متساويان والثالث مختلف (الزركون).</p>
-                <p class="type-para"><strong>السداسي:</strong> محاور أفقية بزوايا 120 درجة (الكوارتز).</p>
+                <p class="type-para" id="system-desc">انقر على أي مجسم ثلاثي الأبعاد لاستكشاف تفاصيله.</p>
+                <div id="hologram-info" style="display: none; margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
+                    <h4 id="holo-title" style="color:#fff; font-family: 'Share Tech Mono';">-</h4>
+                    <p id="holo-text" style="color:#ccc; font-size: 0.9rem;">-</p>
+                </div>
             </div>
             <div id="canvas-systems" class="canvas-container"></div>
         </section>
@@ -72,8 +82,8 @@
         <section id="symmetry" class="section-dark">
             <div class="content">
                 <h2 class="type-head">التناظر البلوري</h2>
-                <p class="type-para"><strong>مستوى التناظر:</strong> مستوى وهمي يقسم البلورة إلى نصفين متطابقين كصورة المرآة.</p>
-                <p class="type-para"><strong>محور التناظر:</strong> خط وهمي يمر بمركز البلورة، إذا أدرنا البلورة حوله تتكرر الأوجه.</p>
+                <p class="type-para"><strong>مستوى التناظر:</strong> مستوى وهمي يقسم البلورة إلى نصفين متطابقين.</p>
+                <p class="type-para"><strong>محور التناظر:</strong> خط وهمي يمر بمركز البلورة، عند الدوران حوله تتكرر الأوجه.</p>
             </div>
             <div id="canvas-symmetry" class="canvas-container"></div>
         </section>
@@ -85,7 +95,7 @@
                 <p class="type-para"><strong>البريق:</strong> طريقة انعكاس الضوء (فلزي أو غير فلزي).</p>
                 <p class="type-para"><strong>الحكاكة:</strong> لون مسحوق المعدن.</p>
                 <p class="type-para"><strong>القساوة:</strong> مقاومة المعدن للخدش.</p>
-                <button id="change-prop">تغيير لون المعدن</button>
+                <button id="change-prop" class="btn">تغيير لون المعدن</button>
             </div>
             <div id="canvas-properties" class="canvas-container"></div>
         </section>
@@ -106,18 +116,13 @@
             <div id="canvas-mohs" class="canvas-container"></div>
         </section>
 
-        <!-- القسم 7: الاختبار التفاعلي (جديد) -->
+        <!-- القسم 7: الاختبار التفاعلي -->
         <section id="quiz">
             <div class="quiz-container">
-                <!-- واجهة الأسئلة -->
                 <div id="question-area">
-                    <h2 id="question-text" class="type-head">السؤال الأول</h2>
-                    <div class="options" id="options-container">
-                        <!-- الأزرار رح تنضاف هنا عن طريق الجافاسكريبت -->
-                    </div>
+                    <h2 id="question-text">جاري تحميل السؤال...</h2>
+                    <div class="options" id="options-container"></div>
                 </div>
-
-                <!-- واجهة النتيجة النهائية -->
                 <div id="score-area" style="display: none;">
                     <h2>النتيجة النهائية</h2>
                     <h1 id="final-score">0 / 5</h1>
@@ -126,14 +131,21 @@
             </div>
         </section>
 
-        <!-- شاشة "صح" الكبيرة (Overlay) -->
+        <!-- شاشة "صح" الكبيرة -->
         <div id="feedback-overlay">
             <h1>صح</h1>
         </div>
 
+        <!-- نافذة هل تعلم (الميزة 7) -->
+        <div id="fact-modal">
+            <div class="modal-content">
+                <h3>💡 هل تعلم؟</h3>
+                <p id="fact-text">المعلومات هنا...</p>
+                <button id="close-fact" class="btn">إغلاق</button>
+            </div>
+        </div>
     </main>
 
-    <!-- استدعاء المكتبات -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="script.js"></script>
