@@ -1,13 +1,10 @@
 // ==========================================
-// 1. إخفاء شاشة التحميل فوراً (حل مشكلة التعليق)
+// 1. بدء الكتابة فوراً عند تحميل الصفحة
 // ==========================================
-setTimeout(() => {
-    const loader = document.getElementById('loader');
-    if (loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => { loader.style.display = 'none'; }, 800);
-    }
-}, 1500); // 1.5 ثانية وتختفي
+document.addEventListener('DOMContentLoaded', () => {
+    const heroElements = document.querySelectorAll('#hero .type-head, #hero .type-sub, #hero .type-para');
+    heroElements.forEach((el, index) => setTimeout(() => triggerTyping(el), index * 300));
+});
 
 // ==========================================
 // 2. الأصوات
@@ -89,12 +86,6 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.2 });
 document.querySelectorAll('section').forEach(section => observer.observe(section));
 
-// تشغيل كتابة القسم الأول بعد اختفاء شاشة التحميل
-setTimeout(() => {
-    const heroElements = document.querySelectorAll('#hero .type-head, #hero .type-sub, #hero .type-para');
-    heroElements.forEach((el, index) => setTimeout(() => triggerTyping(el), index * 300));
-}, 1800);
-
 // ==========================================
 // 6. الوضع السينمائي
 // ==========================================
@@ -124,7 +115,7 @@ if(factBtn) {
 }
 
 // ==========================================
-// 8. إعدادات Three.js (3D) - تم تأمينها ضد البطء
+// 8. إعدادات Three.js (3D)
 // ==========================================
 if (typeof THREE !== 'undefined') {
     function createScene(containerId, buildModelCallback, isInteractive = false) {
@@ -276,7 +267,7 @@ if (typeof THREE !== 'undefined') {
     function animateMohs() { requestAnimationFrame(animateMohs); if (mohsGroup.children.length > 0) mohsGroup.children[0].rotation.y += 0.01; } animateMohs();
 
 } else {
-    console.warn("مكتبة الـ 3D لم تحمل بسبب بطء النت، لكن الموقع يعمل بشكل طبيعي.");
+    console.warn("مكتبة الـ 3D لم تحمل، لكن الموقع يعمل.");
 }
 
 // ==========================================
