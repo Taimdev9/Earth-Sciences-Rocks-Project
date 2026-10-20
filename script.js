@@ -1,19 +1,13 @@
 // ==========================================
-// 1. إخفاء شاشة التحميل (تم إصلاح المشكلة هنا)
+// 1. إخفاء شاشة التحميل فوراً (حل مشكلة التعليق)
 // ==========================================
-// بدل ما ننتظر تحميل كل شيء، نخفي الشاشة بعد ثانيتين من فتح الموقع
 setTimeout(() => {
     const loader = document.getElementById('loader');
     if (loader) {
         loader.style.opacity = '0';
-        setTimeout(() => {
-            loader.style.display = 'none';
-            // تشغيل كتابة النص في الواجهة الرئيسية
-            const heroElements = document.querySelectorAll('#hero .type-head, #hero .type-sub, #hero .type-para');
-            heroElements.forEach((el, index) => setTimeout(() => triggerTyping(el), index * 300));
-        }, 800);
+        setTimeout(() => { loader.style.display = 'none'; }, 800);
     }
-}, 2000);
+}, 1500); // 1.5 ثانية وتختفي
 
 // ==========================================
 // 2. الأصوات
@@ -49,19 +43,22 @@ window.addEventListener('scroll', () => {
     const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
     const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
     const scrolled = (winScroll / height) * 100;
-    document.getElementById('progress-bar').style.width = scrolled + '%';
+    const pb = document.getElementById('progress-bar');
+    if(pb) pb.style.width = scrolled + '%';
 });
 
 // ==========================================
 // 4. المؤشر المخصص
 // ==========================================
 const cursor = document.querySelector('.cursor');
-document.addEventListener('mousemove', e => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
-document.querySelectorAll('a, button, .scale-item, .option-btn').forEach(el => {
-    el.addEventListener('mouseenter', () => { cursor.classList.add('hover'); playSound('hover'); });
-    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
-    el.addEventListener('click', () => playSound('click'));
-});
+if(cursor) {
+    document.addEventListener('mousemove', e => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
+    document.querySelectorAll('a, button, .scale-item, .option-btn').forEach(el => {
+        el.addEventListener('mouseenter', () => { cursor.classList.add('hover'); playSound('hover'); });
+        el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        el.addEventListener('click', () => playSound('click'));
+    });
+}
 
 // ==========================================
 // 5. نظام الكتابة
@@ -92,12 +89,17 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.2 });
 document.querySelectorAll('section').forEach(section => observer.observe(section));
 
+// تشغيل كتابة القسم الأول بعد اختفاء شاشة التحميل
+setTimeout(() => {
+    const heroElements = document.querySelectorAll('#hero .type-head, #hero .type-sub, #hero .type-para');
+    heroElements.forEach((el, index) => setTimeout(() => triggerTyping(el), index * 300));
+}, 1800);
+
 // ==========================================
 // 6. الوضع السينمائي
 // ==========================================
-document.getElementById('cinematic-btn').addEventListener('click', () => {
-    document.body.classList.toggle('cinematic');
-});
+const cineBtn = document.getElementById('cinematic-btn');
+if(cineBtn) cineBtn.addEventListener('click', () => { document.body.classList.toggle('cinematic'); });
 
 // ==========================================
 // 7. نافذة هل تعلم
@@ -109,29 +111,35 @@ const facts = [
     "بلورات الكوارتز تستخدم في صناعة الساعات لأنها تهتز بمعدل ثابت.",
     "ملح الطعام (الهاليت) يتبلور على شكل مكعبات بسبب ترتيب ذراته."
 ];
-document.getElementById('fact-btn').addEventListener('click', () => {
-    const randomFact = facts[Math.floor(Math.random() * facts.length)];
-    document.getElementById('fact-text').innerText = randomFact;
-    document.getElementById('fact-modal').classList.add('show');
-});
-document.getElementById('close-fact').addEventListener('click', () => {
-    document.getElementById('fact-modal').classList.remove('show');
-});
+const factBtn = document.getElementById('fact-btn');
+if(factBtn) {
+    factBtn.addEventListener('click', () => {
+        const randomFact = facts[Math.floor(Math.random() * facts.length)];
+        document.getElementById('fact-text').innerText = randomFact;
+        document.getElementById('fact-modal').classList.add('show');
+    });
+    document.getElementById('close-fact').addEventListener('click', () => {
+        document.getElementById('fact-modal').classList.remove('show');
+    });
+}
 
 // ==========================================
-// 8. إعدادات Three.js (3D)
+// 8. إعدادات Three.js (3D) - تم تأمينها ضد البطء
 // ==========================================
-// ننتظر تحميل الصفحة بالكامل عشان نبدأ الـ 3D
-window.addEventListener('load', () => {
+if (typeof THREE !== 'undefined') {
     function createScene(containerId, buildModelCallback, isInteractive = false) {
         const container = document.getElementById(containerId);
-        if(!container) return; // تأمين
+        if(!container) return; 
         const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x050505, 0.04);
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); camera.position.z = 6;
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(window.devicePixelRatio); container.appendChild(renderer.domElement);
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true; controls.enableZoom = false; controls.enablePan = false;
+        
+        let controls;
+        if(typeof THREE.OrbitControls !== 'undefined') {
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true; controls.enableZoom = false; controls.enablePan = false;
+        }
 
         scene.add(new THREE.AmbientLight(0xffffff, 0.3));
         const light1 = new THREE.PointLight(0xffffff, 1.5, 30); light1.position.set(5,5,5); scene.add(light1);
@@ -144,10 +152,12 @@ window.addEventListener('load', () => {
         const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0x444444, size: 0.08, transparent: true, opacity: 0.6 })); scene.add(stars);
 
         const model = buildModelCallback(); scene.add(model);
+        
         function animate() {
             requestAnimationFrame(animate); stars.rotation.y += 0.0005;
             if (model && !isInteractive) model.position.y = Math.sin(Date.now() * 0.001) * 0.2;
-            controls.update(); renderer.render(scene, camera);
+            if(controls) controls.update(); 
+            renderer.render(scene, camera);
         }
         animate();
         window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
@@ -186,22 +196,25 @@ window.addEventListener('load', () => {
     systemsScene.scene.add(holoRing);
 
     const raycaster = new THREE.Raycaster(); const mouse = new THREE.Vector2();
-    document.getElementById('canvas-systems').addEventListener('click', (e) => {
-        mouse.x = (e.clientX / window.innerWidth) * 2 - 1; mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-        raycaster.setFromCamera(mouse, systemsScene.camera);
-        const intersects = raycaster.intersectObjects(systemModels);
-        
-        if (intersects.length > 0) {
-            playSound('click');
-            const clicked = intersects[0].object;
-            holoRing.visible = true;
-            holoRing.position.x = clicked.position.x;
-            document.getElementById('hologram-info').style.display = 'block';
-            document.getElementById('holo-title').innerText = clicked.userData.name;
-            document.getElementById('holo-text').innerText = clicked.userData.info;
-            document.getElementById('system-desc').innerText = "تم تحديد المعدن!";
-        }
-    });
+    const sysCanvas = document.getElementById('canvas-systems');
+    if(sysCanvas) {
+        sysCanvas.addEventListener('click', (e) => {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1; mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, systemsScene.camera);
+            const intersects = raycaster.intersectObjects(systemModels);
+            
+            if (intersects.length > 0) {
+                playSound('click');
+                const clicked = intersects[0].object;
+                holoRing.visible = true;
+                holoRing.position.x = clicked.position.x;
+                document.getElementById('hologram-info').style.display = 'block';
+                document.getElementById('holo-title').innerText = clicked.userData.name;
+                document.getElementById('holo-text').innerText = clicked.userData.info;
+                document.getElementById('system-desc').innerText = "تم تحديد المعدن!";
+            }
+        });
+    }
 
     function animateHolo() {
         requestAnimationFrame(animateHolo);
@@ -227,15 +240,18 @@ window.addEventListener('load', () => {
 
     const colors = [0x666666, 0xb08d57, 0x4a607a, 0x7a4a4a, 0x4a7a5a];
     let colorIndex = 0;
-    document.getElementById('change-prop').addEventListener('click', () => {
-        colorIndex = (colorIndex + 1) % colors.length; propMaterial.color.setHex(colors[colorIndex]);
-        if(colorIndex === 1) { propMaterial.metalness = 1; propMaterial.roughness = 0.2; } else { propMaterial.metalness = 0.1; propMaterial.roughness = 0.8; }
-        propModel.scale.set(1.1, 1.1, 1.1); setTimeout(() => propModel.scale.set(1,1,1), 200);
-    });
+    const propBtn = document.getElementById('change-prop');
+    if(propBtn) {
+        propBtn.addEventListener('click', () => {
+            colorIndex = (colorIndex + 1) % colors.length; propMaterial.color.setHex(colors[colorIndex]);
+            if(colorIndex === 1) { propMaterial.metalness = 1; propMaterial.roughness = 0.2; } else { propMaterial.metalness = 0.1; propMaterial.roughness = 0.8; }
+            propModel.scale.set(1.1, 1.1, 1.1); setTimeout(() => propModel.scale.set(1,1,1), 200);
+        });
+    }
 
     // 6. مقياس موس
     let mohsGroup = new THREE.Group(); createScene('canvas-mohs', () => { return mohsGroup; }, true);
-    function changeMohsModel(index) {
+    window.changeMohsModel = function(index) { 
         while(mohsGroup.children.length > 0) { mohsGroup.remove(mohsGroup.children[0]); }
         let newMesh; const mat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0.8, roughness: 0.2, transparent: true, opacity: 0.9 });
         switch(index) {
@@ -246,13 +262,22 @@ window.addEventListener('load', () => {
             case 4: newMesh = new THREE.Mesh(new THREE.OctahedronGeometry(2.2, 0), new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 1.0, roughness: 0.05, transparent: true, opacity: 0.9 })); newMesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(newMesh.geometry), new THREE.LineBasicMaterial({ color: 0xffffff }))); break;
         }
         mohsGroup.add(newMesh); newMesh.rotation.y = 0.5;
-    }
+    };
+    
     document.querySelectorAll('.scale-item').forEach(btn => {
-        btn.addEventListener('click', () => { document.querySelectorAll('.scale-item').forEach(b => b.classList.remove('active')); btn.classList.add('active'); changeMohsModel(parseInt(btn.getAttribute('data-index'))); });
+        btn.addEventListener('click', () => { 
+            document.querySelectorAll('.scale-item').forEach(b => b.classList.remove('active')); 
+            btn.classList.add('active'); 
+            if(window.changeMohsModel) window.changeMohsModel(parseInt(btn.getAttribute('data-index'))); 
+        });
     });
-    changeMohsModel(4); 
+    if(window.changeMohsModel) window.changeMohsModel(4); 
+    
     function animateMohs() { requestAnimationFrame(animateMohs); if (mohsGroup.children.length > 0) mohsGroup.children[0].rotation.y += 0.01; } animateMohs();
-});
+
+} else {
+    console.warn("مكتبة الـ 3D لم تحمل بسبب بطء النت، لكن الموقع يعمل بشكل طبيعي.");
+}
 
 // ==========================================
 // 9. الاختبار
@@ -269,7 +294,12 @@ const questionText = document.getElementById('question-text'); const optionsCont
 const scoreArea = document.getElementById('score-area'); const finalScore = document.getElementById('final-score'); const overlay = document.getElementById('feedback-overlay');
 
 function loadQuestion() {
-    if (currentQuestionIndex >= quizData.length) { document.getElementById('question-area').style.display = 'none'; scoreArea.style.display = 'block'; finalScore.innerText = `${score} / ${quizData.length}`; return; }
+    if (currentQuestionIndex >= quizData.length) { 
+        document.getElementById('question-area').style.display = 'none'; 
+        scoreArea.style.display = 'block'; 
+        finalScore.innerText = `${score} / ${quizData.length}`; 
+        return; 
+    }
     const currentQ = quizData[currentQuestionIndex]; questionText.innerText = currentQ.question; optionsContainer.innerHTML = '';
     currentQ.options.forEach((option, index) => {
         const btn = document.createElement('button'); btn.classList.add('option-btn'); btn.innerText = option;
@@ -286,9 +316,14 @@ function checkAnswer(selectedIndex, btnElement) {
         setTimeout(() => { btnElement.style.borderColor = '#444'; btnElement.style.color = '#fff'; }, 500);
     }
 }
-loadQuestion();
+if(questionText) loadQuestion();
 
 // التنقل
 document.querySelectorAll('#sidebar a').forEach(link => {
-    link.addEventListener('click', (e) => { e.preventDefault(); document.querySelector(link.getAttribute('href')).scrollIntoView({ behavior: 'smooth' }); document.querySelectorAll('#sidebar a').forEach(l => l.classList.remove('active')); link.classList.add('active'); });
+    link.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        document.querySelector(link.getAttribute('href')).scrollIntoView({ behavior: 'smooth' }); 
+        document.querySelectorAll('#sidebar a').forEach(l => l.classList.remove('active')); 
+        link.classList.add('active'); 
+    });
 });
