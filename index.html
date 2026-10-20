@@ -12,7 +12,10 @@
     <!-- مؤشر الماوس المخصص -->
     <div class="cursor"></div>
 
-    <!-- 1. شاشة التحميل (بسيطة وفخمة) -->
+    <!-- زر وضع العرض (ملء الشاشة) -->
+    <button id="fs-btn" title="وضع العرض">⛶</button>
+
+    <!-- 1. شاشة التحميل -->
     <div id="loader">
         <div class="loader-content">
             <h2>Taimdev9</h2>
@@ -30,6 +33,7 @@
             <li><a href="#symmetry" title="التناظر">4</a></li>
             <li><a href="#properties" title="الخصائص">5</a></li>
             <li><a href="#mohs" title="مقياس موس">6</a></li>
+            <li><a href="#quiz" title="الاختبار">7</a></li>
         </ul>
     </nav>
 
@@ -49,8 +53,9 @@
         <!-- القسم 2: المفهوم -->
         <section id="concept" class="section-dark">
             <div class="content">
-                <h2 class="type-head">مفهوم المعدن</h2>
-                <p class="type-para">المعدن هو مادة صلبة، طبيعية، غير عضوية، لها تركيب كيميائي محدد وبناء ذري منتظم.</p>
+                <h2 class="type-head">مفهوم المعدن والبلورة</h2>
+                <p class="type-para"><strong>المعدن:</strong> مادة صلبة، طبيعية، غير عضوية، لها تركيب كيميائي محدد وبناء ذري منتظم.</p>
+                <p class="type-para"><strong>البلورة:</strong> هي الشكل الخارجي الهندسي الذي يعكس الترتيب الذري الداخلي المنتظم للمعدن.</p>
             </div>
             <div id="canvas-concept" class="canvas-container"></div>
         </section>
@@ -59,7 +64,10 @@
         <section id="systems">
             <div class="content">
                 <h2 class="type-head">الأنظمة البلورية</h2>
-                <p class="type-para">تترتب الذرات في البلورات بأنماط هندسية مختلفة، ومن أهمها النظام المكعب، الرباعي، والسداسي.</p>
+                <p class="type-para">تترتب الذرات في البلورات بأنماط هندسية مختلفة، ومن أهمها:</p>
+                <p class="type-para"><strong>النظام المكعب:</strong> محاور متساوية ومتعامدة (مثال: ملح الهاليت والألماس).</p>
+                <p class="type-para"><strong>النظام الرباعي:</strong> محوران متساويان والثالث مختلف (مثال: معدن الزركون).</p>
+                <p class="type-para"><strong>النظام السداسي:</strong> محاور أفقية متساوية بزوايا 120 درجة (مثال: الكوارتز).</p>
             </div>
             <div id="canvas-systems" class="canvas-container"></div>
         </section>
@@ -68,7 +76,8 @@
         <section id="symmetry" class="section-dark">
             <div class="content">
                 <h2 class="type-head">التناظر البلوري</h2>
-                <p class="type-para">هو انعكاس للبناء الداخلي المنتظم للبلورة، ويشمل مستويات ومحاور تناظر تقسم البلورة لجزئين متطابقين.</p>
+                <p class="type-para"><strong>مستوى التناظر:</strong> مستوى وهمي يقسم البلورة إلى نصفين متطابقين كصورة المرآة.</p>
+                <p class="type-para"><strong>محور التناظر:</strong> خط وهمي يمر بمركز البلورة، إذا أدرنا البلورة حوله دورة كاملة تتكرر الأوجه المتماثلة.</p>
             </div>
             <div id="canvas-symmetry" class="canvas-container"></div>
         </section>
@@ -77,7 +86,9 @@
         <section id="properties">
             <div class="content">
                 <h2 class="type-head">الخصائص الفيزيائية</h2>
-                <p class="type-para">تتميز المعادن بخصائص مثل: اللون، البريق، الحكاكة، القساوة، والانفصام.</p>
+                <p class="type-para"><strong>اللون والبريق:</strong> البريق هو طريقة انعكاس الضوء (فلزي أو غير فلزي).</p>
+                <p class="type-para"><strong>الحكاكة:</strong> لون مسحوق المعدن عند حكه بمادة خزفية.</p>
+                <p class="type-para"><strong>القساوة:</strong> مقاومة المعدن للخدش.</p>
                 <button id="change-prop">تغيير خاصية المعدن</button>
             </div>
             <div id="canvas-properties" class="canvas-container"></div>
@@ -87,16 +98,26 @@
         <section id="mohs" class="section-dark">
             <div class="content">
                 <h2 class="type-head">مقياس موس للقساوة</h2>
-                <p class="type-para">مقياس من 1 إلى 10 لقياس صلابة المعادن. الألماس هو الأقسى (10)، والتلك هو الأنعم (1).</p>
-                <div class="mohs-scale">
-                    <div class="scale-item"><span>1</span> تلك</div>
-                    <div class="scale-item"><span>2.5</span> ظفر</div>
-                    <div class="scale-item"><span>3.5</span> نحاس</div>
-                    <div class="scale-item"><span>5.5</span> زجاج</div>
-                    <div class="scale-item"><span>10</span> ألماس</div>
+                <p class="type-para">انقر على أي رقم في السلم لتظهر لك الصورة ثلاثية الأبعاد للمعدن المقابل.</p>
+                <div class="mohs-scale" id="mohs-buttons">
+                    <div class="scale-item" data-index="0"><span>1</span> تلك</div>
+                    <div class="scale-item" data-index="1"><span>2.5</span> ظفر</div>
+                    <div class="scale-item" data-index="2"><span>3.5</span> نحاس</div>
+                    <div class="scale-item" data-index="3"><span>5.5</span> زجاج</div>
+                    <div class="scale-item" data-index="4"><span>10</span> ألماس</div>
                 </div>
             </div>
             <div id="canvas-mohs" class="canvas-container"></div>
+        </section>
+
+        <!-- القسم 7: الاختبار التفاعلي -->
+        <section id="quiz">
+            <div class="content quiz-content">
+                <h2 class="type-head">تحدي المعادن</h2>
+                <p class="type-para" id="quiz-question">جاري تحميل السؤال...</p>
+                <p class="hint" style="color: #fff !important; margin-top: 20px;">(انقر على المكعب الذي يحمل الإجابة الصحيحة)</p>
+            </div>
+            <div id="canvas-quiz" class="canvas-container"></div>
         </section>
     </main>
 
