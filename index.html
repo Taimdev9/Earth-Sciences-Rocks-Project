@@ -12,10 +12,7 @@
     <!-- مؤشر الماوس المخصص -->
     <div class="cursor"></div>
 
-    <!-- زر وضع العرض (ملء الشاشة) -->
-    <button id="fs-btn" title="وضع العرض">⛶</button>
-
-    <!-- 1. شاشة التحميل -->
+    <!-- 1. شاشة التحميل البسيطة -->
     <div id="loader">
         <div class="loader-content">
             <h2>Taimdev9</h2>
@@ -46,7 +43,6 @@
                 <h3 class="type-sub">Earth Sciences Project</h3>
                 <p class="type-para">إعداد الطالب: <strong>Taimdev9</strong></p>
                 <p class="type-para">إشراف: المعلمة <strong>مس ضحى</strong></p>
-                <p class="hint">(استخدم الماوس للسحب والتحكم بالمجسم)</p>
             </div>
         </section>
 
@@ -65,9 +61,9 @@
             <div class="content">
                 <h2 class="type-head">الأنظمة البلورية</h2>
                 <p class="type-para">تترتب الذرات في البلورات بأنماط هندسية مختلفة، ومن أهمها:</p>
-                <p class="type-para"><strong>النظام المكعب:</strong> محاور متساوية ومتعامدة (مثال: ملح الهاليت والألماس).</p>
-                <p class="type-para"><strong>النظام الرباعي:</strong> محوران متساويان والثالث مختلف (مثال: معدن الزركون).</p>
-                <p class="type-para"><strong>النظام السداسي:</strong> محاور أفقية متساوية بزوايا 120 درجة (مثال: الكوارتز).</p>
+                <p class="type-para"><strong>المكعب:</strong> محاور متساوية ومتعامدة (ملح الهاليت والألماس).</p>
+                <p class="type-para"><strong>الرباعي:</strong> محوران متساويان والثالث مختلف (الزركون).</p>
+                <p class="type-para"><strong>السداسي:</strong> محاور أفقية بزوايا 120 درجة (الكوارتز).</p>
             </div>
             <div id="canvas-systems" class="canvas-container"></div>
         </section>
@@ -77,7 +73,7 @@
             <div class="content">
                 <h2 class="type-head">التناظر البلوري</h2>
                 <p class="type-para"><strong>مستوى التناظر:</strong> مستوى وهمي يقسم البلورة إلى نصفين متطابقين كصورة المرآة.</p>
-                <p class="type-para"><strong>محور التناظر:</strong> خط وهمي يمر بمركز البلورة، إذا أدرنا البلورة حوله دورة كاملة تتكرر الأوجه المتماثلة.</p>
+                <p class="type-para"><strong>محور التناظر:</strong> خط وهمي يمر بمركز البلورة، إذا أدرنا البلورة حوله تتكرر الأوجه.</p>
             </div>
             <div id="canvas-symmetry" class="canvas-container"></div>
         </section>
@@ -86,10 +82,10 @@
         <section id="properties">
             <div class="content">
                 <h2 class="type-head">الخصائص الفيزيائية</h2>
-                <p class="type-para"><strong>اللون والبريق:</strong> البريق هو طريقة انعكاس الضوء (فلزي أو غير فلزي).</p>
-                <p class="type-para"><strong>الحكاكة:</strong> لون مسحوق المعدن عند حكه بمادة خزفية.</p>
+                <p class="type-para"><strong>البريق:</strong> طريقة انعكاس الضوء (فلزي أو غير فلزي).</p>
+                <p class="type-para"><strong>الحكاكة:</strong> لون مسحوق المعدن.</p>
                 <p class="type-para"><strong>القساوة:</strong> مقاومة المعدن للخدش.</p>
-                <button id="change-prop">تغيير خاصية المعدن</button>
+                <button id="change-prop">تغيير لون المعدن</button>
             </div>
             <div id="canvas-properties" class="canvas-container"></div>
         </section>
@@ -98,7 +94,7 @@
         <section id="mohs" class="section-dark">
             <div class="content">
                 <h2 class="type-head">مقياس موس للقساوة</h2>
-                <p class="type-para">انقر على أي رقم في السلم لتظهر لك الصورة ثلاثية الأبعاد للمعدن المقابل.</p>
+                <p class="type-para">انقر على أي رقم لتغيير شكل المعدن في المقياس.</p>
                 <div class="mohs-scale" id="mohs-buttons">
                     <div class="scale-item" data-index="0"><span>1</span> تلك</div>
                     <div class="scale-item" data-index="1"><span>2.5</span> ظفر</div>
@@ -110,15 +106,31 @@
             <div id="canvas-mohs" class="canvas-container"></div>
         </section>
 
-        <!-- القسم 7: الاختبار التفاعلي -->
+        <!-- القسم 7: الاختبار التفاعلي (جديد) -->
         <section id="quiz">
-            <div class="content quiz-content">
-                <h2 class="type-head">تحدي المعادن</h2>
-                <p class="type-para" id="quiz-question">جاري تحميل السؤال...</p>
-                <p class="hint" style="color: #fff !important; margin-top: 20px;">(انقر على المكعب الذي يحمل الإجابة الصحيحة)</p>
+            <div class="quiz-container">
+                <!-- واجهة الأسئلة -->
+                <div id="question-area">
+                    <h2 id="question-text" class="type-head">السؤال الأول</h2>
+                    <div class="options" id="options-container">
+                        <!-- الأزرار رح تنضاف هنا عن طريق الجافاسكريبت -->
+                    </div>
+                </div>
+
+                <!-- واجهة النتيجة النهائية -->
+                <div id="score-area" style="display: none;">
+                    <h2>النتيجة النهائية</h2>
+                    <h1 id="final-score">0 / 5</h1>
+                    <button class="btn" onclick="location.reload()">العودة إلى الرئيسية</button>
+                </div>
             </div>
-            <div id="canvas-quiz" class="canvas-container"></div>
         </section>
+
+        <!-- شاشة "صح" الكبيرة (Overlay) -->
+        <div id="feedback-overlay">
+            <h1>صح</h1>
+        </div>
+
     </main>
 
     <!-- استدعاء المكتبات -->
