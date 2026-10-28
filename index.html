@@ -21,6 +21,24 @@
         <button id="fact-btn" title="هل تعلم؟">💡 هل تعلم؟</button>
     </div>
 
+    <!-- شاشة التحميل (1.5 ثانية) -->
+    <div id="loader">
+        <div class="loader-content">
+            <h2>Taimdev9</h2>
+            <div class="spinner"></div>
+            <p>جاري التحميل...</p>
+        </div>
+    </div>
+
+    <!-- نافذة الشروط والأحكام (تظهر بعد التحميل) -->
+    <div id="terms-modal">
+        <div class="modal-content">
+            <h3>شروط الاستخدام</h3>
+            <p>باستخدامك هذا الموقع، فإنك توافق على <a href="https://taimdev9.github.io/Terms-of-Use-and-Conditions/" target="_blank" style="color: #00E5FF; text-decoration: underline;">شروط الاستخدام وإخلاء المسؤولية</a> الخاصة بـ Taimdev9 وفريق TRL.</p>
+            <button id="accept-terms" class="btn">أوافق على الشروط</button>
+        </div>
+    </div>
+
     <!-- شريط التنقل الجانبي -->
     <nav id="sidebar">
         <ul>
@@ -29,8 +47,9 @@
             <li><a href="#systems" title="الأنظمة">3</a></li>
             <li><a href="#symmetry" title="التناظر">4</a></li>
             <li><a href="#properties" title="الخصائص">5</a></li>
-            <li><a href="#mohs" title="مقياس موس">6</a></li>
-            <li><a href="#quiz" title="الاختبار">7</a></li>
+            <li><a href="#water-cycle" title="دورة الماء">6</a></li>
+            <li><a href="#mohs" title="مقياس موس">7</a></li>
+            <li><a href="#quiz" title="الاختبار">8</a></li>
         </ul>
     </nav>
 
@@ -91,8 +110,19 @@
             <div id="canvas-properties" class="canvas-container"></div>
         </section>
 
-        <!-- القسم 6: مقياس موس -->
-        <section id="mohs" class="section-dark">
+        <!-- القسم 6: دورة الماء (جديد) -->
+        <section id="water-cycle" class="section-dark">
+            <div class="content">
+                <h2 class="type-head">دورة الماء في الطبيعة</h2>
+                <p class="type-para"><strong>التبخر:</strong> تحول الماء إلى بخار بفعل حرارة الشمس.</p>
+                <p class="type-para"><strong>التكاثف:</strong> تحول البخار إلى قطرات ماء صغيرة تشكل السحب.</p>
+                <p class="type-para"><strong>الهطول:</strong> نزول الماء على شكل مطر أو ثلج.</p>
+            </div>
+            <div id="canvas-water" class="canvas-container"></div>
+        </section>
+
+        <!-- القسم 7: مقياس موس -->
+        <section id="mohs">
             <div class="content">
                 <h2 class="type-head">مقياس موس للقساوة</h2>
                 <p class="type-para">انقر على أي رقم لتغيير شكل المعدن في المقياس.</p>
@@ -107,8 +137,8 @@
             <div id="canvas-mohs" class="canvas-container"></div>
         </section>
 
-        <!-- القسم 7: الاختبار التفاعلي -->
-        <section id="quiz">
+        <!-- القسم 8: الاختبار التفاعلي -->
+        <section id="quiz" class="section-dark">
             <div class="quiz-container">
                 <div id="question-area">
                     <h2 id="question-text">جاري تحميل السؤال...</h2>
