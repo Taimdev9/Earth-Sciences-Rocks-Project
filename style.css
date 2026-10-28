@@ -14,6 +14,18 @@ body { background: var(--bg); color: var(--text); overflow-x: hidden; scroll-beh
 .top-controls button { background: transparent; color: #fff; border: 1px solid #555; padding: 8px 15px; border-radius: 5px; cursor: none; transition: 0.3s; font-family: 'Cairo'; font-size: 0.9rem; }
 .top-controls button:hover { background: #fff; color: #000; }
 
+/* شاشة التحميل */
+#loader { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; transition: opacity 0.8s; }
+.spinner { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* نافذة الشروط */
+#terms-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 10003; opacity: 0; pointer-events: none; transition: 0.3s; }
+#terms-modal.show { opacity: 1; pointer-events: auto; }
+#terms-modal .modal-content { background: #111; padding: 40px; border-radius: 12px; border: 1px solid #555; max-width: 600px; text-align: center; }
+#terms-modal .modal-content h3 { color: #fff; margin-bottom: 20px; font-size: 1.8rem; }
+#terms-modal .modal-content p { color: #ccc; margin-bottom: 30px; line-height: 1.8; font-size: 1.1rem; }
+
 /* التنقل */
 #sidebar { position: fixed; right: 25px; top: 50%; transform: translateY(-50%); z-index: 100; transition: opacity 0.5s; }
 #sidebar ul { list-style: none; display: flex; flex-direction: column; gap: 15px; }
