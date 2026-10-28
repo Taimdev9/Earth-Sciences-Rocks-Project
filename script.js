@@ -1,7 +1,25 @@
 // ==========================================
-// 1. بدء الكتابة فوراً عند تحميل الصفحة
+// 1. شاشة التحميل ونافذة الشروط
 // ==========================================
-document.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('load', () => {
+    // إخفاء شاشة التحميل بعد 1.5 ثانية
+    setTimeout(() => {
+        const loader = document.getElementById('loader');
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+            
+            // إظهار نافذة الشروط بعد اختفاء التحميل
+            document.getElementById('terms-modal').classList.add('show');
+            
+        }, 800);
+    }, 1500);
+});
+
+// زر الموافقة على الشروط
+document.getElementById('accept-terms').addEventListener('click', () => {
+    document.getElementById('terms-modal').classList.remove('show');
+    // بدء كتابة القسم الأول بعد الموافقة
     const heroElements = document.querySelectorAll('#hero .type-head, #hero .type-sub, #hero .type-para');
     heroElements.forEach((el, index) => setTimeout(() => triggerTyping(el), index * 300));
 });
@@ -93,14 +111,17 @@ const cineBtn = document.getElementById('cinematic-btn');
 if(cineBtn) cineBtn.addEventListener('click', () => { document.body.classList.toggle('cinematic'); });
 
 // ==========================================
-// 7. نافذة هل تعلم
+// 7. نافذة هل تعلم (معلومات جديدة)
 // ==========================================
 const facts = [
     "الألماس هو أقسى مادة طبيعية على وجه الأرض، ويتكون من الكربون فقط!",
     "المعدن الوحيد الذي يوجد في الطبيعة في حالته السائلة هو الزئبق.",
     "الذهب لا يصدأ أبداً، ولهذا يستخدم في صناعة المجوهرات منذ آلاف السنين.",
     "بلورات الكوارتز تستخدم في صناعة الساعات لأنها تهتز بمعدل ثابت.",
-    "ملح الطعام (الهاليت) يتبلور على شكل مكعبات بسبب ترتيب ذراته."
+    "ملح الطعام (الهاليت) يتبلور على شكل مكعبات بسبب ترتيب ذراته.",
+    "الشمس هي المحرك الأساسي لدورة الماء في الطبيعة.",
+    "المياه الجوفية تشكل حوالي 30% من المياه العذبة في العالم.",
+    "الهاليت (ملح الطعام) هو المعدن الوحيد الذي نتناوله في طعامنا."
 ];
 const factBtn = document.getElementById('fact-btn');
 if(factBtn) {
@@ -240,7 +261,66 @@ if (typeof THREE !== 'undefined') {
         });
     }
 
-    // 6. مقياس موس
+    // 6. دورة الماء (جديد)
+    createScene('canvas-water', () => {
+        const group = new THREE.Group();
+        
+        // الشمس
+        const sunGeo = new THREE.SphereGeometry(0.8, 32, 32);
+        const sunMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
+        const sun = new THREE.Mesh(sunGeo, sunMat);
+        sun.position.set(-4, 3, 0);
+        group.add(sun);
+
+        // المحيط (سطح الماء)
+        const oceanGeo = new THREE.PlaneGeometry(8, 4);
+        const oceanMat = new THREE.MeshStandardMaterial({ color: 0x004466, transparent: true, opacity: 0.8 });
+        const ocean = new THREE.Mesh(oceanGeo, oceanMat);
+        ocean.rotation.x = -Math.PI / 2;
+        ocean.position.y = -2;
+        group.add(ocean);
+
+        // السحاب
+        const cloudGroup = new THREE.Group();
+        const cloudMat = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, transparent: true, opacity: 0.7 });
+        const c1 = new THREE.Mesh(new THREE.SphereGeometry(0.6, 16, 16), cloudMat); c1.position.set(0, 0, 0);
+        const c2 = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), cloudMat); c2.position.set(0.6, -0.2, 0);
+        const c3 = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), cloudMat); c3.position.set(-0.6, -0.2, 0);
+        cloudGroup.add(c1, c2, c3);
+        cloudGroup.position.set(2, 3, 0);
+        group.add(cloudGroup);
+
+        // قطرات المطر (Particles)
+        const rainGeo = new THREE.BufferGeometry();
+        const rainCount = 100;
+        const rainPositions = new Float32Array(rainCount * 3);
+        for(let i=0; i < rainCount * 3; i+=3) {
+            rainPositions[i] = (Math.random() - 0.5) * 6; // x
+            rainPositions[i+1] = Math.random() * 4 - 1; // y
+            rainPositions[i+2] = (Math.random() - 0.5) * 2; // z
+        }
+        rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPositions, 3));
+        const rainMat = new THREE.PointsMaterial({ color: 0x00E5FF, size: 0.1 });
+        const rain = new THREE.Points(rainGeo, rainMat);
+        group.add(rain);
+
+        // حركة المطر
+        group.userData = { rain: rain };
+        function animateRain() {
+            requestAnimationFrame(animateRain);
+            const positions = rain.geometry.attributes.position.array;
+            for(let i=1; i < positions.length; i+=3) {
+                positions[i] -= 0.05; // نزول المطر
+                if(positions[i] < -2) positions[i] = 4; // إعادة للأعلى
+            }
+            rain.geometry.attributes.position.needsUpdate = true;
+        }
+        animateRain();
+
+        return group;
+    }, true); // isInteractive = true عشان ما يطفو
+
+    // 7. مقياس موس
     let mohsGroup = new THREE.Group(); createScene('canvas-mohs', () => { return mohsGroup; }, true);
     window.changeMohsModel = function(index) { 
         while(mohsGroup.children.length > 0) { mohsGroup.remove(mohsGroup.children[0]); }
@@ -271,7 +351,7 @@ if (typeof THREE !== 'undefined') {
 }
 
 // ==========================================
-// 9. الاختبار
+// 9. الاختبار (أسئلة مصححة)
 // ==========================================
 const quizData = [
     { question: "أي المعادن التالية يعتبر الأقسى ويخدش الزجاج؟", options: ["التلك", "الألماس", "الذهب", "الكوارتز"], correct: 1 },
